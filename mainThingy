@@ -1,0 +1,258 @@
+#include<iostream>
+#include<string>
+#include<stdlib.h>
+#include<time.h>
+#include<Windows.h>
+
+
+
+using namespace std;
+
+//These are battle dialogue's used, and the main choice string
+string battle_dialogue[15]{ "What would you like to do?\n1:attack\n2:Drink a Potion\n3:Plan an attack\n", "You swing your axe\n", "You swing your sword\n","You attack with you dagger\n", "It struck the foe\n", "You missed your attack\n", "You have been hit!\n", "Your opponent has missed\n" };
+string choice;
+
+//The different weapon classes are labeled here, nothing needs to be done
+class sword {
+public:
+	bool equip = false;
+	int dmg = 8;
+	int acc = 8;
+	string att_diag = battle_dialogue[2];
+};
+class axe {
+public:
+	bool equip = false;
+	int dmg = 15;
+	int acc = 6;
+	string att_diag = battle_dialogue[1];
+
+};
+class dagger {
+public:
+	bool equip = false;
+	int dmg = 5;
+	int acc = 10;
+	string att_diag = battle_dialogue[3];
+};
+class Potion {
+public:
+	int amount = 0;
+	int heal = 5;
+};
+
+//This is a class for your character with their name, hp, and weapns (note that the weapons are called iron, steel, and sharp
+//To equip a weapon you have to call it by making it true, and the other one false
+//player.sharp.equip = false; (un-equips the axe)
+//player.iron.equip = true; (equips the sword)
+class character {
+public:
+	string name;
+	int hp = 20;
+	dagger iron;
+	sword steel;
+	axe sharp;
+	Potion potion;
+	
+	
+};
+
+//This is a class for enemy. to make a new enemy you simply call the function and give them their stats
+/*enemy ogre;
+ogre.hp = 10;
+ogre.dmg = 6;
+ogre.acc = 5;*/
+class enemy {
+public:
+	int hp;
+	int dmg;
+	int acc;
+};
+
+//this class calls for combat. You simply put in the character and the enemy into the parameters and it will play out a battle phase until somebody dies.
+//Note!! If your opponent dies before combat he will get in a final hit on you
+void combat(character ply, enemy enm);
+
+//this types the text on screen
+void typer(string);
+
+//This should be used on multi selections to make sure no mis inputs are present. the parameter should only be 2 or 3 (it is the options present)
+void mis_input(int);
+
+//This is the intro for the game and creates your name
+void intro(); 
+character player;
+
+	int main() {
+		//intro();
+		
+		player.iron.equip = true;
+		player.potion.amount = 1;
+
+		enemy ogre;
+		ogre.hp = 10;
+		ogre.dmg = 7;
+		ogre.acc = 5;
+		
+		combat(player, ogre);
+	}
+	void intro() {
+		
+		typer("Greetings friend!\nAre you the one the king has sent to conquor this dungeon?\n");
+		for (int i = 0; i < 7; i++) {
+			cout << ".";
+			Sleep(500);
+		}
+		typer("\nDon't you have a tounge friend? Do not be shy\nSimply type 1 to reply yes, and 2 to reply with no\n");
+		cout << "1: Yes\n2: No\n";
+
+		mis_input(2);
+
+		if (choice == "1") {
+			typer("Great!\n");
+		}
+		else if (choice == "2") {
+			typer("Haha! I see why the king chose you with that sense of humor!\nWhy else would you be in the middle of nowhere in a suit of armor if not to concor this dungeon\n");
+		}
+
+		typer("Now what is your name?");
+		
+		cin >> player.name;
+		typer("Hello there " + player.name + ". I am gerald. You are now ready to enter the dungeon. Here is a dagger (it never misses)\n Good luck to you\n May Odin be with you");
+
+
+
+	}
+	void combat(character ply, enemy enm) {
+		
+		int hit;
+		int enemy_hit;
+		bool critical = false;
+		while (enm.hp > 0 && ply.hp > 0) {
+
+			srand(time(0));
+			cout << battle_dialogue[0];
+			mis_input(3);
+			if (choice == "1") {
+				if (ply.iron.equip == true) {
+					typer(ply.iron.att_diag);
+					hit = rand() % 10;
+					if (hit <= ply.iron.acc) {
+						typer(battle_dialogue[4]);
+						enm.hp -= ply.iron.dmg;
+						if (critical) {
+							typer("It was a critical Hit!\n");
+							ply.iron.dmg = 5;
+							critical = false;
+						}
+					}
+					else {
+						typer(battle_dialogue[5]);
+					}
+				}
+				else if (ply.steel.equip == true) {
+					typer(ply.steel.att_diag);
+					hit = rand() % 10;
+					if (hit <= ply.steel.acc) {
+						typer(battle_dialogue[4]);
+						enm.hp -= ply.steel.dmg;
+						if (critical) {
+							typer("It was a critical Hit!\n");
+							ply.steel.dmg = 8;
+							critical = false;
+						}
+					}
+					else {
+						typer(battle_dialogue[5]);
+					}
+				}
+				else if (ply.sharp.equip == true) {
+					typer(ply.sharp.att_diag);
+					hit = rand() % 10 + 1;
+					if (hit <= ply.sharp.acc) {
+						typer(battle_dialogue[4]);
+						enm.hp -= ply.sharp.dmg;
+						if (critical){
+							typer("It was a critical Hit!\n");
+							ply.sharp.dmg = 15;
+							critical = false;
+						}
+					}
+					else {
+						typer(battle_dialogue[5]);
+					}
+				}
+			}
+			else if (choice == "2") {
+				if (ply.potion.amount > 0) {
+					typer("\nYou consume one of your healing potions, Healing some of your HP\n");
+					ply.hp += ply.potion.heal;
+					ply.potion.amount -= 1;
+					if (ply.hp > 20) {
+						typer("You feel stronger than ever!\n");
+					}
+				}
+				else {
+					typer("\nYou search your bag for a potion, but find nothing...\n");
+				}
+			}
+			else if (choice == "3") {
+				typer("\nYou are now planning an attack\n");
+				if (ply.iron.equip) {
+					ply.iron.dmg = 10;
+					critical = true;
+
+				}
+				else if (ply.steel.equip) {
+					ply.steel.dmg = 20;
+					critical = true;
+				}
+				else if (ply.sharp.equip) {
+					ply.sharp.dmg = 30;
+					critical = true;
+				}
+			}
+
+			typer("Your opponent goes to attack you\n");
+			enemy_hit = rand() % 10;
+			if (enemy_hit <= enm.acc) {
+				typer(battle_dialogue[6]);
+				ply.hp -= enm.dmg;
+			}
+			else {
+				typer(battle_dialogue[7]);
+			}
+
+			if (ply.hp <= 0) {
+				typer("You have lost");
+				
+
+			}
+			else if (enm.hp <= 0) {
+				typer("You have slain your foe");
+			}
+		}
+		system("CLS");
+	}
+	void typer(string inp) {
+		for (int l = 0; l < inp.length(); l++) {
+			cout << inp.at(l);
+			Sleep(50);
+		}
+	}
+	void mis_input(int opt) {
+		cin >> choice;
+		if (opt == 2) {
+				while (choice != "1" && choice != "2") {
+					cout << "\nPlay by the rules, Type the correct thing\n";
+					cin >> choice;
+				}
+			
+		}
+		if (opt == 3) {
+			while (choice != "1" && choice != "2" && choice != "3") {
+				cout << "\nPlay by the rules, Type the correct thing";
+				cin >> choice;
+			}
+		}
+	}
